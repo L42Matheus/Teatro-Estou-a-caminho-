@@ -463,16 +463,55 @@ main {
 }
 
 .scene {
-  padding: 22px;
+  padding: 0;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--bg-elevated);
   margin-bottom: 20px;
   box-shadow: var(--shadow);
+  overflow: hidden;
 }
-.scene h3 {
-  margin: 0 0 6px;
+.scene-summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px;
+  user-select: none;
+  transition: background 0.15s;
+}
+.scene-summary::-webkit-details-marker { display: none; }
+.scene-summary:hover {
+  background: color-mix(in oklab, var(--accent) 6%, transparent);
+}
+.scene-summary h3 {
+  margin: 0;
   font-size: 18px;
+  flex: 1;
+  min-width: 0;
+}
+.scene-meta {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-alt);
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.scene-chevron {
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+  transform: rotate(180deg);
+}
+.scene[open] > .scene-summary .scene-chevron {
+  transform: rotate(0deg);
+}
+.scene-body {
+  padding: 4px 22px 22px;
 }
 .scene .setting {
   font-style: italic;
@@ -577,12 +616,45 @@ main {
 }
 .character-header .big-avatar svg { display: block; }
 .character-header h1 { margin: 0 0 8px; font-size: 30px; }
+.character-header .actor-line {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin: 0 0 10px;
+}
+.character-header .actor-line strong {
+  color: var(--char-color, var(--accent));
+  font-weight: 700;
+}
 .character-header ul {
   margin: 0;
   padding-left: 18px;
   color: var(--text-muted);
   font-size: 14px;
 }
+
+/* Tag do ator/atriz — segunda linha, colorida com a cor do personagem */
+.actor-tag {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--char-color, var(--accent));
+  letter-spacing: 0.2px;
+  text-transform: none;
+  margin-top: 2px;
+  opacity: 0.95;
+}
+.beat .who-name .actor-tag { font-size: 11.5px; margin-top: 1px; }
+.character-chip .name .actor-tag { font-size: 12.5px; margin-top: 2px; }
+
+/* No mini-chip (pill compacto), o ator fica inline pra não estourar o layout */
+.mini-chip .actor-tag {
+  display: inline;
+  font-size: 0.85em;
+  font-weight: 500;
+  opacity: 0.75;
+  margin-left: 4px;
+}
+.mini-chip .actor-tag::before { content: "· "; }
 .character-header ul li { margin: 2px 0; }
 
 .character-stats {

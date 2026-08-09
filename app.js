@@ -286,11 +286,12 @@ function renderCharacterChip(key) {
   const c = CHARACTERS[key];
   if (!c) return '';
   const count = linesByCharacter[key]?.length || 0;
+  const actor = actorFor(key);
   return `
     <a href="#/personagem/${key}" class="character-chip" style="--char-color: ${c.color}">
       <div class="avatar">${svgAvatar(c, 44)}</div>
       <div class="info">
-        <div class="name">${esc(c.name)}</div>
+        <div class="name">${esc(c.name)}${actor ? `<span class="actor-tag">${esc(actor)}</span>` : ''}</div>
         <div class="sub">${count} ${count === 1 ? 'fala' : 'falas'}</div>
       </div>
     </a>
@@ -366,8 +367,9 @@ function renderPlay(slug) {
     .map(k => {
       const c = CHARACTERS[k];
       if (!c) return '';
+      const actor = actorFor(k);
       return `<a href="#/personagem/${k}" class="mini-chip" style="--char-color: ${c.color}">
-        <span class="dot"></span>${esc(c.name)}
+        <span class="dot"></span>${esc(c.name)}${actor ? `<span class="actor-tag">${esc(actor)}</span>` : ''}
       </a>`;
     }).join('');
 
@@ -411,12 +413,19 @@ function renderPlay(slug) {
 
 function renderScene(scene, pi, si) {
   const beatsHtml = scene.beats.map(beat => renderBeat(beat)).join('');
+  const lineCount = scene.beats.filter(b => b.type === 'line').length;
   return `
-    <article class="scene">
-      <h3>${esc(scene.title)}</h3>
-      ${scene.setting ? `<div class="setting">${esc(scene.setting)}</div>` : ''}
-      <div class="beats">${beatsHtml}</div>
-    </article>
+    <details class="scene" open>
+      <summary class="scene-summary">
+        <h3>${esc(scene.title)}</h3>
+        <span class="scene-meta">${lineCount} ${lineCount === 1 ? 'fala' : 'falas'}</span>
+        <span class="scene-chevron" aria-hidden="true">⌄</span>
+      </summary>
+      <div class="scene-body">
+        ${scene.setting ? `<div class="setting">${esc(scene.setting)}</div>` : ''}
+        <div class="beats">${beatsHtml}</div>
+      </div>
+    </details>
   `;
 }
 
@@ -428,13 +437,14 @@ function renderBeat(beat) {
   const name = c ? c.name : beat.character;
   const color = c ? c.color : 'var(--accent)';
   const avatarSvg = c ? svgAvatar(c, 40) : '';
+  const actor = actorFor(beat.character);
   return `
     <div class="beat" style="--char-color: ${color}">
       <a href="#/personagem/${beat.character}" class="who-avatar" aria-label="${esc(name)}">
         ${avatarSvg}
       </a>
       <div class="beat-body">
-        <a href="#/personagem/${beat.character}" class="who-name">${esc(name)}</a>
+        <a href="#/personagem/${beat.character}" class="who-name">${esc(name)}${actor ? `<span class="actor-tag">${esc(actor)}</span>` : ''}</a>
         <div class="text">${esc(beat.text)}</div>
       </div>
     </div>
@@ -480,6 +490,7 @@ function renderCharacter(key) {
       <div class="big-avatar">${svgAvatar(c, 110)}</div>
       <div>
         <h1>${esc(c.name)}</h1>
+        ${actorFor(key) ? `<div class="actor-line">🎭 interpretado por <strong>${esc(actorFor(key))}</strong></div>` : ''}
         <ul>${c.traits.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
       </div>
     </header>
