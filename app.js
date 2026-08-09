@@ -526,6 +526,545 @@ function renderCharacter(key) {
   `;
 }
 
+// -------------------------------------------------------- Modo Ensaio
+// Constrói a lista plana de cenas de uma peça (com índice global)
+function flatScenes(play) {
+  const list = [];
+  play.parts.forEach((part, pi) => {
+    part.scenes.forEach((scene, si) => {
+      list.push({ scene, partTitle: part.title, sceneIdx: list.length, pi, si });
+    });
+  });
+  return list;
+}
+
+function charsInScene(scene) {
+  const set = new Set();
+  scene.beats.forEach(b => { if (b.type === 'line') set.add(b.character); });
+  return Array.from(set);
+}
+
+// Estado do modo ensaio
+const ensaioState = {
+  mode: 'roteiro',       // 'roteiro' | 'dialogo'
+  playSlug: PLAYS[0].slug,
+  sceneIdx: 0,
+  charKey: null,
+  revealed: new Set(),   // índices de beats revelados (roteiro)
+  currentBeatIdx: 0,     // beat atual (dialogo)
+  ttsVoice: '',          // nome da voz TTS escolhida
+  ttsRate: 1.0,
+  ttsAutoplay: true,
+  running: false,
+};
+
+// Carrega prefs de TTS do localStorage
+try {
+  const saved = JSON.parse(localStorage.getItem('ensaioTTS') || '{}');
+  Object.assign(ensaioState, saved);
+} catch(e) {}
+
+function saveTtsPrefs() {
+  localStorage.setItem('ensaioTTS', JSON.stringify({
+    ttsVoice: ensaioState.ttsVoice,
+    ttsRate: ensaioState.ttsRate,
+    ttsAutoplay: ensaioState.ttsAutoplay,
+  }));
+}
+
+// --- TTS (Web Speech API) ---
+let ttsVoices = [];
+function loadVoices() {
+  if (!('speechSynthesis' in window)) return;
+  const all = speechSynthesis.getVoices();
+  ttsVoices = all.filter(v => v.lang && v.lang.toLowerCase().startsWith('pt'));
+  if (ttsVoices.length === 0) ttsVoices = all; // fallback: qualquer voz
+}
+if ('speechSynthesis' in window) {
+  loadVoices();
+  speechSynthesis.addEventListener('voiceschanged', loadVoices);
+}
+
+function ttsSpeak(text, opts = {}) {
+  if (!('speechSynthesis' in window)) return;
+  // Se as vozes ainda não carregaram, tenta uma vez
+  if (ttsVoices.length === 0) loadVoices();
+
+  const doSpeak = () => {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    const voice = ttsVoices.find(v => v.name === ensaioState.ttsVoice) || ttsVoices[0];
+    if (voice) u.voice = voice;
+    u.lang = voice?.lang || 'pt-BR';
+    u.rate = ensaioState.ttsRate;
+    u.pitch = opts.pitch || 1;
+    speechSynthesis.speak(u);
+  };
+
+  // Chrome/Safari mobile às vezes precisam de um pequeno delay pra pegar a nova utterance
+  if (ttsVoices.length === 0) {
+    setTimeout(() => { loadVoices(); doSpeak(); }, 150);
+  } else {
+    doSpeak();
+  }
+}
+function ttsStop() {
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+}
+
+// ---- Home: grade de personagens
+function renderEnsaiarHome() {
+  setActive('ensaiar');
+  document.title = 'Ensaiar — Teatro EAC';
+
+  const keys = Object.keys(CHARACTERS)
+    .filter(k => (linesByCharacter[k]?.length || 0) > 0)
+    .sort((a, b) => CHARACTERS[a].name.localeCompare(CHARACTERS[b].name));
+
+  const chips = keys.map(k => {
+    const c = CHARACTERS[k];
+    const count = linesByCharacter[k]?.length || 0;
+    const actor = actorFor(k);
+    return `
+      <a href="#/ensaiar/${k}" class="character-chip" style="--char-color: ${c.color}">
+        <div class="avatar">${svgAvatar(c, 44)}</div>
+        <div class="info">
+          <div class="name">${esc(c.name)}${actor ? ` <span class="actor-tag">${esc(actor)}</span>` : ''}</div>
+          <div class="sub">${count} ${count === 1 ? 'fala' : 'falas'}</div>
+        </div>
+      </a>
+    `;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="crumbs"><a href="#/">Início</a> <span>›</span> <span>Ensaiar</span></div>
+
+    <section class="hero ensaio-hero">
+      <h1>🎯 Bora ensaiar!</h1>
+      <p>Escolha seu personagem e treine as falas — sozinho no celular. Tem <strong>Modo Roteiro</strong> (cena inteira, suas falas escondidas) e <strong>Modo Diálogo</strong> (uma fala por vez, com o celular "falando" os outros).</p>
+    </section>
+
+    <div class="section-title"><h2>Escolha seu personagem</h2><small>${keys.length} personagens</small></div>
+    <div class="characters-grid">${chips}</div>
+  `;
+}
+
+// ---- Página do personagem: cenas dele agrupadas por peça
+function renderEnsaiarChar(charKey) {
+  const c = CHARACTERS[charKey];
+  if (!c) return render404();
+  setActive('ensaiar');
+  document.title = `Ensaiar ${c.name} — Teatro EAC`;
+  const actor = actorFor(charKey);
+
+  // Coleta cenas onde o personagem aparece (agrupadas por peça)
+  const byPlay = new Map();
+  PLAYS.forEach(play => {
+    const scenes = flatScenes(play);
+    scenes.forEach(item => {
+      const lines = item.scene.beats.filter(b => b.type === 'line' && b.character === charKey);
+      if (lines.length === 0) return;
+      if (!byPlay.has(play.id)) byPlay.set(play.id, { play, items: [] });
+      byPlay.get(play.id).items.push({ ...item, myLines: lines.length });
+    });
+  });
+
+  const blocksHtml = [...byPlay.values()].map(({ play, items }) => `
+    <details class="char-play-block" open>
+      <summary class="char-play-summary">
+        <h3>${esc(play.number)} — ${esc(play.title)}</h3>
+        <span class="scene-meta">${items.length} ${items.length === 1 ? 'cena' : 'cenas'}</span>
+        <span class="scene-chevron" aria-hidden="true">⌄</span>
+      </summary>
+      <div class="char-play-body">
+        <div class="ensaiar-scenes">
+          ${items.map(item => `
+            <a href="#/ensaiar/${charKey}/${play.slug}/${item.sceneIdx}" class="ensaiar-scene-card" style="--char-color: ${c.color}">
+              <div class="ensaiar-scene-info">
+                <div class="ensaiar-scene-title">${esc(item.scene.title)}</div>
+                <div class="ensaiar-scene-meta">${esc(item.partTitle)} · <strong>${item.myLines}</strong> ${item.myLines === 1 ? 'fala sua' : 'falas suas'}</div>
+              </div>
+              <div class="ensaiar-scene-cta">▶ Ensaiar</div>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    </details>
+  `).join('');
+
+  app.innerHTML = `
+    <div class="crumbs">
+      <a href="#/">Início</a> <span>›</span>
+      <a href="#/ensaiar">Ensaiar</a> <span>›</span>
+      <span>${esc(c.name)}</span>
+    </div>
+
+    <header class="character-header" style="--char-color: ${c.color}">
+      <div class="big-avatar">${svgAvatar(c, 110)}</div>
+      <div>
+        <h1>Ensaiar como ${esc(c.name)}</h1>
+        ${actor ? `<div class="actor-line">🎭 interpretado por <strong>${esc(actor)}</strong></div>` : ''}
+        <p class="ensaiar-char-hint">Escolha uma cena abaixo pra começar a decorar.</p>
+      </div>
+    </header>
+
+    ${blocksHtml}
+  `;
+}
+
+// ---- Setup + rodar: escolhe modo e inicia
+function renderEnsaiarScene(charKey, playSlug, sceneIdx) {
+  const c = CHARACTERS[charKey];
+  const play = PLAYS.find(p => p.slug === playSlug);
+  if (!c || !play) return render404();
+  const scenes = flatScenes(play);
+  const item = scenes[sceneIdx];
+  if (!item) return render404();
+
+  setActive('ensaiar');
+  document.title = `${item.scene.title} — Ensaiar — Teatro EAC`;
+
+  // Sincroniza estado
+  const s = ensaioState;
+  s.charKey = charKey;
+  s.playSlug = playSlug;
+  s.sceneIdx = sceneIdx;
+  s.revealed = new Set();
+  s.currentBeatIdx = 0;
+  s.running = false;
+
+  const actor = actorFor(charKey);
+  const myLines = item.scene.beats.filter(b => b.type === 'line' && b.character === charKey).length;
+
+  const voiceOpts = ttsVoices.map(v =>
+    `<option value="${esc(v.name)}" ${v.name === s.ttsVoice ? 'selected' : ''}>${esc(v.name)} (${esc(v.lang)})</option>`
+  ).join('') || '<option value="">Nenhuma voz disponível</option>';
+
+  app.innerHTML = `
+    <div class="crumbs">
+      <a href="#/">Início</a> <span>›</span>
+      <a href="#/ensaiar">Ensaiar</a> <span>›</span>
+      <a href="#/ensaiar/${charKey}">${esc(c.name)}</a> <span>›</span>
+      <span>${esc(item.scene.title)}</span>
+    </div>
+
+    <section class="ensaiar-scene-header" style="--char-color: ${c.color}">
+      <div class="ensaiar-scene-header-info">
+        <div class="mini-play-badge">${esc(play.number)} — ${esc(play.title)}</div>
+        <h1>${esc(item.scene.title)}</h1>
+        <div class="ensaiar-scene-header-meta">${esc(item.partTitle)} · <strong>${myLines}</strong> ${myLines === 1 ? 'fala sua' : 'falas suas'} · Você é <strong>${esc(c.name)}</strong>${actor ? ` <span class="actor-tag">${esc(actor)}</span>` : ''}</div>
+      </div>
+    </section>
+
+    <div class="section-title"><h2>Como quer ensaiar?</h2></div>
+
+    <div class="mode-tabs">
+      <button type="button" class="mode-tab ${s.mode === 'roteiro' ? 'active' : ''}" data-mode="roteiro">📜 Modo Roteiro</button>
+      <button type="button" class="mode-tab ${s.mode === 'dialogo' ? 'active' : ''}" data-mode="dialogo">💬 Modo Diálogo (com voz)</button>
+    </div>
+
+    <form class="ensaio-form" id="ensaioForm">
+      ${s.mode === 'dialogo' ? `
+        <div class="tts-settings">
+          <label>
+            <span>🔊 Voz</span>
+            <select id="fldVoice">${voiceOpts}</select>
+          </label>
+          <label>
+            <span>⚡ Velocidade (${s.ttsRate.toFixed(1)}x)</span>
+            <input type="range" id="fldRate" min="0.6" max="1.6" step="0.1" value="${s.ttsRate}" />
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="fldAutoplay" ${s.ttsAutoplay ? 'checked' : ''} />
+            <span>Falar automaticamente as falas dos outros</span>
+          </label>
+        </div>
+      ` : `
+        <div class="mode-desc">📜 Você vai ver a cena inteira. Suas falas ficam borradas — toque em "Lembrei" pra revelar cada uma. Bom pra revisar o texto.</div>
+      `}
+      <button type="submit" class="btn primary">▶ Iniciar ensaio</button>
+    </form>
+
+    <div id="ensaioRun"></div>
+  `;
+
+  document.querySelectorAll('.mode-tab').forEach(t => {
+    t.addEventListener('click', () => {
+      s.mode = t.dataset.mode;
+      renderEnsaiarScene(charKey, playSlug, sceneIdx);
+    });
+  });
+
+  if (s.mode === 'dialogo') {
+    const vSel = document.getElementById('fldVoice');
+    const rSel = document.getElementById('fldRate');
+    const aChk = document.getElementById('fldAutoplay');
+    vSel?.addEventListener('change', () => { s.ttsVoice = vSel.value; saveTtsPrefs(); });
+    rSel?.addEventListener('input', () => { s.ttsRate = parseFloat(rSel.value); saveTtsPrefs(); renderEnsaiarScene(charKey, playSlug, sceneIdx); });
+    aChk?.addEventListener('change', () => { s.ttsAutoplay = aChk.checked; saveTtsPrefs(); });
+  }
+
+  document.getElementById('ensaioForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    s.running = true;
+    // Esconde a UI de setup (formulário, tabs, header "Como quer ensaiar?")
+    document.getElementById('ensaioForm').remove();
+    document.querySelector('.mode-tabs')?.remove();
+    document.querySelectorAll('.section-title').forEach(el => el.remove());
+    if (s.mode === 'dialogo') renderDialogo();
+    else renderTeleprompter();
+    document.getElementById('ensaioRun')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  });
+}
+
+function renderTeleprompter() {
+  const s = ensaioState;
+  const play = PLAYS.find(p => p.slug === s.playSlug);
+  const scenes = flatScenes(play);
+  const item = scenes[s.sceneIdx];
+  if (!item) return;
+  const scene = item.scene;
+  const charKey = s.charKey;
+  const c = CHARACTERS[charKey];
+  const actor = actorFor(charKey);
+
+  const myLineIdxs = [];
+  scene.beats.forEach((b, i) => { if (b.type === 'line' && b.character === charKey) myLineIdxs.push(i); });
+  const totalMine = myLineIdxs.length;
+
+  const beatsHtml = scene.beats.map((beat, i) => {
+    if (beat.type === 'stage') {
+      return `<div class="beat stage"><div class="text">${esc(beat.text)}</div></div>`;
+    }
+    const isMine = beat.character === charKey;
+    const bc = CHARACTERS[beat.character];
+    const name = bc ? bc.name : beat.character;
+    const color = bc ? bc.color : 'var(--accent)';
+    const avatarSvg = bc ? svgAvatar(bc, 40) : '';
+    const bActor = actorFor(beat.character);
+    if (isMine) {
+      const revealed = s.revealed.has(i);
+      return `
+        <div class="beat mine ${revealed ? 'revealed' : 'hidden'}" style="--char-color: ${color}" data-beat="${i}">
+          <div class="who-avatar">${avatarSvg}</div>
+          <div class="beat-body">
+            <div class="who-name">${esc(name)}${bActor ? `<span class="actor-tag">${esc(bActor)}</span>` : ''}</div>
+            <div class="text hidden-text">${esc(beat.text)}</div>
+            ${revealed ? '' : `<button type="button" class="btn-reveal" data-reveal="${i}">🔓 Lembrei — mostrar fala</button>`}
+          </div>
+        </div>
+      `;
+    }
+    return `
+      <div class="beat" style="--char-color: ${color}">
+        <div class="who-avatar">${avatarSvg}</div>
+        <div class="beat-body">
+          <div class="who-name">${esc(name)}${bActor ? `<span class="actor-tag">${esc(bActor)}</span>` : ''}</div>
+          <div class="text">${esc(beat.text)}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const revealedCount = s.revealed.size;
+  const pct = totalMine > 0 ? Math.round((revealedCount / totalMine) * 100) : 0;
+
+  document.getElementById('ensaioRun').innerHTML = `
+    <div class="ensaio-run" style="--char-color: ${c?.color || 'var(--accent)'}">
+      <header class="ensaio-run-header">
+        <div class="ensaio-run-who">
+          <div class="ensaio-run-avatar">${c ? svgAvatar(c, 56) : ''}</div>
+          <div>
+            <div class="ensaio-run-name">Você é <strong>${esc(c?.name || charKey)}</strong>${actor ? ` <span class="actor-tag">${esc(actor)}</span>` : ''}</div>
+            <div class="ensaio-run-scene">${esc(item.partTitle)} · ${esc(scene.title)}</div>
+          </div>
+        </div>
+        <div class="ensaio-run-actions">
+          <button type="button" class="btn ghost" id="btnRevealAll">👁 Revelar tudo</button>
+          <button type="button" class="btn ghost" id="btnResetEnsaio">🔄 Reiniciar</button>
+        </div>
+      </header>
+
+      <div class="ensaio-progress">
+        <div class="ensaio-progress-bar"><div class="ensaio-progress-fill" style="width: ${pct}%"></div></div>
+        <div class="ensaio-progress-label"><strong>${revealedCount}</strong> de <strong>${totalMine}</strong> falas reveladas</div>
+      </div>
+
+      ${scene.setting ? `<div class="setting">${esc(scene.setting)}</div>` : ''}
+      <div class="beats">${beatsHtml}</div>
+    </div>
+  `;
+
+  document.querySelectorAll('[data-reveal]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const idx = parseInt(e.currentTarget.dataset.reveal, 10);
+      s.revealed.add(idx);
+      renderTeleprompter();
+    });
+  });
+  document.getElementById('btnRevealAll').addEventListener('click', () => {
+    myLineIdxs.forEach(i => s.revealed.add(i));
+    renderTeleprompter();
+  });
+  document.getElementById('btnResetEnsaio').addEventListener('click', () => {
+    s.revealed = new Set();
+    renderTeleprompter();
+  });
+}
+
+function renderDialogo() {
+  const s = ensaioState;
+  const play = PLAYS.find(p => p.slug === s.playSlug);
+  const scenes = flatScenes(play);
+  const item = scenes[s.sceneIdx];
+  if (!item) return;
+  const scene = item.scene;
+  const charKey = s.charKey;
+  const c = CHARACTERS[charKey];
+  const actor = actorFor(charKey);
+
+  // Sequência de "passos": setting (se houver) + cada beat
+  const steps = [];
+  if (scene.setting) steps.push({ kind: 'setting', text: scene.setting });
+  scene.beats.forEach(b => steps.push({ kind: 'beat', beat: b }));
+
+  const idx = Math.max(0, Math.min(s.currentBeatIdx, steps.length));
+  const step = steps[idx];
+  const isEnd = idx >= steps.length;
+  const total = steps.length;
+
+  let bubbleHtml = '';
+  let controlsHtml = '';
+
+  if (isEnd) {
+    bubbleHtml = `
+      <div class="dialog-end">
+        <div class="dialog-end-emoji">🎉</div>
+        <h2>Cena concluída!</h2>
+        <p>Boa, ${esc(c?.name || 'ator')}! Você chegou até o fim da cena.</p>
+      </div>
+    `;
+    controlsHtml = `
+      <button type="button" class="btn ghost" id="btnDlgReset">🔄 Ensaiar de novo</button>
+      <button type="button" class="btn primary" id="btnDlgBack">← Voltar às opções</button>
+    `;
+    ttsStop();
+  } else if (step.kind === 'setting') {
+    bubbleHtml = `<div class="dialog-setting"><span class="dialog-setting-badge">🎬 Rubrica</span>${esc(step.text)}</div>`;
+    controlsHtml = `
+      <button type="button" class="btn ghost" id="btnDlgPrev" ${idx === 0 ? 'disabled' : ''}>← Anterior</button>
+      <button type="button" class="btn primary" id="btnDlgNext">Próxima →</button>
+    `;
+    if (s.ttsAutoplay) ttsSpeak(step.text, { pitch: 0.9 });
+  } else {
+    const beat = step.beat;
+    if (beat.type === 'stage') {
+      bubbleHtml = `<div class="dialog-setting"><span class="dialog-setting-badge">🎬 Rubrica</span>${esc(beat.text)}</div>`;
+      controlsHtml = `
+        <button type="button" class="btn ghost" id="btnDlgPrev">← Anterior</button>
+        <button type="button" class="btn primary" id="btnDlgNext">Próxima →</button>
+      `;
+      if (s.ttsAutoplay) ttsSpeak(beat.text, { pitch: 0.9 });
+    } else {
+      const isMine = beat.character === charKey;
+      const bc = CHARACTERS[beat.character];
+      const name = bc ? bc.name : beat.character;
+      const color = bc ? bc.color : 'var(--accent)';
+      const avatarSvg = bc ? svgAvatar(bc, 64) : '';
+      const bActor = actorFor(beat.character);
+
+      if (isMine) {
+        const revealed = s.revealed.has(idx);
+        bubbleHtml = `
+          <div class="dialog-my-turn" style="--char-color: ${color}">
+            <div class="dialog-my-avatar">${avatarSvg}</div>
+            <div class="dialog-my-body">
+              <div class="dialog-my-label">🎤 Sua vez, <strong>${esc(name)}</strong></div>
+              ${revealed
+                ? `<div class="dialog-bubble mine"><div class="text">${esc(beat.text)}</div></div>`
+                : `<div class="dialog-my-hint">Fale sua fala em voz alta. Quando terminar, toque em "Falei" pra ver o texto.</div>`
+              }
+            </div>
+          </div>
+        `;
+        controlsHtml = `
+          <button type="button" class="btn ghost" id="btnDlgPrev">← Anterior</button>
+          ${revealed
+            ? `<button type="button" class="btn primary" id="btnDlgNext">Próxima →</button>`
+            : `<button type="button" class="btn primary" id="btnDlgReveal">✓ Falei — ver o texto</button>`
+          }
+        `;
+      } else {
+        bubbleHtml = `
+          <div class="dialog-them" style="--char-color: ${color}">
+            <div class="dialog-them-avatar">${avatarSvg}</div>
+            <div class="dialog-them-body">
+              <div class="dialog-them-name">${esc(name)}${bActor ? `<span class="actor-tag">${esc(bActor)}</span>` : ''}</div>
+              <div class="dialog-bubble them"><div class="text">${esc(beat.text)}</div></div>
+              <button type="button" class="btn-speak" id="btnDlgSpeak">🔊 Ouvir de novo</button>
+            </div>
+          </div>
+        `;
+        controlsHtml = `
+          <button type="button" class="btn ghost" id="btnDlgPrev">← Anterior</button>
+          <button type="button" class="btn primary" id="btnDlgNext">Próxima →</button>
+        `;
+        if (s.ttsAutoplay) ttsSpeak(beat.text);
+      }
+    }
+  }
+
+  const pct = Math.round((idx / total) * 100);
+
+  document.getElementById('ensaioRun').innerHTML = `
+    <div class="dialog-run" style="--char-color: ${c?.color || 'var(--accent)'}">
+      <header class="dialog-header">
+        <div class="dialog-you">Você é <strong>${esc(c?.name || charKey)}</strong>${actor ? ` <span class="actor-tag">${esc(actor)}</span>` : ''}</div>
+        <div class="dialog-scene-title">${esc(item.partTitle)} · ${esc(scene.title)}</div>
+      </header>
+
+      <div class="ensaio-progress">
+        <div class="ensaio-progress-bar"><div class="ensaio-progress-fill" style="width: ${pct}%"></div></div>
+        <div class="ensaio-progress-label"><strong>${Math.min(idx + 1, total)}</strong> / <strong>${total}</strong></div>
+      </div>
+
+      <div class="dialog-stage">${bubbleHtml}</div>
+
+      <div class="dialog-controls">${controlsHtml}</div>
+    </div>
+  `;
+
+  document.getElementById('btnDlgPrev')?.addEventListener('click', () => {
+    ttsStop();
+    s.currentBeatIdx = Math.max(0, s.currentBeatIdx - 1);
+    renderDialogo();
+  });
+  document.getElementById('btnDlgNext')?.addEventListener('click', () => {
+    ttsStop();
+    s.currentBeatIdx = s.currentBeatIdx + 1;
+    renderDialogo();
+  });
+  document.getElementById('btnDlgReveal')?.addEventListener('click', () => {
+    s.revealed.add(idx);
+    renderDialogo();
+  });
+  document.getElementById('btnDlgSpeak')?.addEventListener('click', () => {
+    if (step.kind === 'beat' && step.beat.type === 'line') ttsSpeak(step.beat.text);
+  });
+  document.getElementById('btnDlgReset')?.addEventListener('click', () => {
+    s.currentBeatIdx = 0;
+    s.revealed = new Set();
+    renderDialogo();
+  });
+  document.getElementById('btnDlgBack')?.addEventListener('click', () => {
+    ttsStop();
+    s.running = false;
+    s.currentBeatIdx = 0;
+    s.revealed = new Set();
+    renderEnsaiarScene(s.charKey, s.playSlug, s.sceneIdx);
+  });
+}
+
 function render404() {
   app.innerHTML = `
     <div class="crumbs"><a href="#/">Início</a></div>
@@ -551,6 +1090,13 @@ function router() {
   if (parts[0] === 'personagens' && parts.length === 1) return renderCharactersList();
   if (parts[0] === 'peca' && parts[1]) return renderPlay(parts[1]);
   if (parts[0] === 'personagem' && parts[1]) return renderCharacter(parts[1]);
+  if (parts[0] === 'ensaiar') {
+    if (!parts[1]) return renderEnsaiarHome();
+    if (parts[1] && !parts[2]) return renderEnsaiarChar(parts[1]);
+    if (parts[1] && parts[2] && parts[3] !== undefined) return renderEnsaiarScene(parts[1], parts[2], parseInt(parts[3], 10));
+  }
+  // legado
+  if (parts[0] === 'ensaio') { location.hash = '#/ensaiar'; return; }
   return render404();
 }
 

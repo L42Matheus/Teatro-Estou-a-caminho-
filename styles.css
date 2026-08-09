@@ -801,6 +801,446 @@ main {
 .crumbs a { color: var(--text-muted); }
 .crumbs a:hover { color: var(--accent); }
 
+/* ------------------------------------------------------------------- Ensaiar (fluxo personagem-primeiro) */
+.ensaiar-char-hint {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin: 6px 0 0;
+}
+
+.ensaiar-scenes {
+  display: grid;
+  gap: 10px;
+}
+.ensaiar-scene-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--char-color, var(--accent));
+  background: var(--bg);
+  color: var(--text);
+  text-decoration: none;
+  transition: transform 0.12s, box-shadow 0.15s, background 0.15s;
+}
+.ensaiar-scene-card:hover {
+  background: color-mix(in oklab, var(--char-color, var(--accent)) 6%, var(--bg));
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+}
+.ensaiar-scene-info { flex: 1; min-width: 0; }
+.ensaiar-scene-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.ensaiar-scene-meta {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+.ensaiar-scene-meta strong { color: var(--char-color, var(--accent)); }
+.ensaiar-scene-cta {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--char-color, var(--accent));
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ensaiar-scene-header {
+  padding: 22px 26px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  border-left: 6px solid var(--char-color, var(--accent));
+  background: linear-gradient(135deg, color-mix(in oklab, var(--char-color) 10%, var(--bg-elevated)), var(--bg-alt));
+  margin-bottom: 20px;
+}
+.mini-play-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--char-color, var(--accent));
+  background: color-mix(in oklab, var(--char-color, var(--accent)) 12%, transparent);
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+.ensaiar-scene-header h1 { margin: 0 0 6px; font-size: 24px; line-height: 1.25; }
+.ensaiar-scene-header-meta { font-size: 13.5px; color: var(--text-muted); }
+.ensaiar-scene-header-meta strong { color: var(--text); }
+
+.mode-desc {
+  padding: 14px;
+  background: var(--bg-alt);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  border-left: 3px solid var(--accent-2);
+}
+
+/* ------------------------------------------------------------------- Tabs de modo */
+.mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.mode-tab {
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mode-tab:hover { background: var(--bg-alt); color: var(--text); }
+.mode-tab.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: white;
+}
+@media (max-width: 520px) {
+  .mode-tabs { grid-template-columns: 1fr; }
+}
+
+/* Configurações TTS */
+.tts-settings {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg-alt);
+  border-radius: 10px;
+  border: 1px dashed var(--border);
+}
+.tts-settings input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+.tts-settings label.toggle {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+}
+.tts-settings label.toggle input { width: auto; margin: 0; }
+
+/* ------------------------------------------------------------------- Modo Diálogo */
+.dialog-run {
+  padding: 22px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--char-color, var(--accent));
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow);
+}
+.dialog-header { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.dialog-you { font-size: 16px; color: var(--text); }
+.dialog-scene-title { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+.dialog-stage {
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.dialog-setting {
+  width: 100%;
+  padding: 24px;
+  background: var(--bg-alt);
+  border-left: 4px solid var(--accent-2);
+  border-radius: 10px;
+  font-style: italic;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.dialog-setting-badge {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 10px;
+  background: var(--accent-2);
+  color: white;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 11px;
+  border-radius: 999px;
+  vertical-align: middle;
+  letter-spacing: 0.4px;
+}
+
+.dialog-them {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  width: 100%;
+  animation: fadeSlideIn 0.25s ease-out;
+}
+.dialog-them-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+}
+.dialog-them-body { flex: 1; min-width: 0; }
+.dialog-them-name {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--char-color, var(--accent));
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 4px;
+}
+.dialog-them-name .actor-tag { color: var(--char-color, var(--accent)); opacity: 0.75; margin-top: 1px; }
+
+.dialog-my-turn {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  width: 100%;
+  flex-direction: row-reverse;
+  animation: fadeSlideIn 0.25s ease-out;
+}
+.dialog-my-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+}
+.dialog-my-body { flex: 1; min-width: 0; text-align: right; }
+.dialog-my-label {
+  font-size: 13px;
+  color: var(--char-color, var(--accent));
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.dialog-my-label strong { font-weight: 800; }
+.dialog-my-hint {
+  padding: 20px;
+  background: color-mix(in oklab, var(--char-color, var(--accent)) 8%, transparent);
+  border: 1.5px dashed var(--char-color, var(--accent));
+  border-radius: 16px;
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 14px;
+  text-align: center;
+}
+
+.dialog-bubble {
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 16px;
+  line-height: 1.5;
+  max-width: 100%;
+  display: inline-block;
+  text-align: left;
+}
+.dialog-bubble.them {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+.dialog-bubble.mine {
+  background: color-mix(in oklab, var(--char-color, var(--accent)) 18%, var(--bg-elevated));
+  border: 1px solid var(--char-color, var(--accent));
+  color: var(--text);
+  border-bottom-right-radius: 4px;
+}
+.dialog-bubble .text { margin: 0; }
+
+.btn-speak {
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-speak:hover { background: var(--bg-alt); color: var(--text); }
+
+.dialog-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.dialog-controls .btn { flex: 1; min-width: 130px; padding: 12px; font-size: 14px; }
+
+.dialog-end {
+  text-align: center;
+  padding: 20px;
+  width: 100%;
+}
+.dialog-end-emoji { font-size: 48px; margin-bottom: 8px; }
+.dialog-end h2 { margin: 0 0 6px; font-size: 24px; }
+.dialog-end p { color: var(--text-muted); margin: 0; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ------------------------------------------------------------------- Modo Ensaio (Teleprompter) */
+.ensaio-hero { margin-bottom: 20px; }
+.ensaio-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  padding: 22px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+.ensaio-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.ensaio-form select {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.ensaio-form select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.ensaio-form button[type="submit"] {
+  justify-self: stretch;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ensaio-run {
+  padding: 22px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--char-color, var(--accent));
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow);
+}
+.ensaio-run-header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.ensaio-run-who {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex: 1;
+  min-width: 200px;
+}
+.ensaio-run-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+}
+.ensaio-run-name { font-size: 16px; color: var(--text); }
+.ensaio-run-scene {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.ensaio-run-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.ensaio-run-actions .btn { padding: 8px 14px; font-size: 13px; }
+
+.ensaio-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.ensaio-progress-bar {
+  flex: 1;
+  min-width: 180px;
+  height: 8px;
+  background: var(--bg-alt);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.ensaio-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--char-color, var(--accent)), color-mix(in oklab, var(--char-color, var(--accent)) 60%, #fff));
+  transition: width 0.3s ease;
+}
+.ensaio-progress-label { font-size: 13px; color: var(--text-muted); }
+
+.beat.mine.hidden .hidden-text {
+  filter: blur(6px);
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.55;
+}
+.beat.mine .btn-reveal {
+  margin-top: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1.5px dashed var(--char-color, var(--accent));
+  background: color-mix(in oklab, var(--char-color, var(--accent)) 8%, transparent);
+  color: var(--char-color, var(--accent));
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.beat.mine .btn-reveal:hover {
+  background: color-mix(in oklab, var(--char-color, var(--accent)) 15%, transparent);
+}
+.beat.mine .btn-reveal:active { transform: scale(0.97); }
+.beat.mine.revealed {
+  background: color-mix(in oklab, var(--char-color, var(--accent)) 8%, transparent);
+}
+
 /* ------------------------------------------------------------------- Footer */
 .footer {
   border-top: 1px solid var(--border);
