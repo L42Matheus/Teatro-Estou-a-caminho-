@@ -22,6 +22,7 @@ const ACTORS = {
   // --- Coordenadores / familiares ---
   avelino:           'Douglas',
   angelo:            'João',
+  jesus:             'João',
   juju:              'Lara',
   salete:            'Greice',
 

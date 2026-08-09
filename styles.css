@@ -507,7 +507,8 @@ main {
   transition: transform 0.2s ease;
   transform: rotate(180deg);
 }
-.scene[open] > .scene-summary .scene-chevron {
+.scene[open] > .scene-summary .scene-chevron,
+.char-play-block[open] > .char-play-summary .scene-chevron {
   transform: rotate(0deg);
 }
 .scene-body {
@@ -685,16 +686,49 @@ main {
 }
 
 .char-play-block {
-  margin-bottom: 32px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  overflow: hidden;
+  box-shadow: var(--shadow);
 }
-.char-play-block h3 {
-  margin: 0 0 12px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--border);
+.char-play-summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  user-select: none;
+  transition: background 0.15s;
+}
+.char-play-summary::-webkit-details-marker { display: none; }
+.char-play-summary:hover {
+  background: color-mix(in oklab, var(--accent) 6%, transparent);
+}
+.char-play-summary h3 {
+  margin: 0;
   font-size: 18px;
+  flex: 1;
+  min-width: 0;
+  color: var(--text);
 }
-.char-play-block h3 a { color: var(--text); }
-.char-play-block h3 a:hover { color: var(--accent); }
+.char-play-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 16px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+.char-play-link:hover {
+  background: var(--bg-alt);
+  color: var(--accent);
+}
+.char-play-body {
+  padding: 4px 20px 20px;
+}
 
 .char-line {
   padding: 12px 16px;

@@ -466,15 +466,22 @@ function renderCharacter(key) {
   const playsCount = Object.keys(byPlay).length;
 
   const blocksHtml = Object.values(byPlay).map(group => `
-    <div class="char-play-block">
-      <h3><a href="#/peca/${group.playSlug}">${esc(group.playNumber)} — ${esc(group.playTitle)}</a></h3>
-      ${group.items.map(it => `
-        <div class="char-line" style="--char-color: ${c.color}">
-          <span class="scene-tag">${esc(it.partTitle)} · ${esc(it.sceneTitle)}</span>
-          ${esc(it.text)}
-        </div>
-      `).join('')}
-    </div>
+    <details class="char-play-block" open>
+      <summary class="char-play-summary">
+        <h3>${esc(group.playNumber)} — ${esc(group.playTitle)}</h3>
+        <span class="scene-meta">${group.items.length} ${group.items.length === 1 ? 'fala' : 'falas'}</span>
+        <a href="#/peca/${group.playSlug}" class="char-play-link" onclick="event.stopPropagation()" title="Abrir peça">↗</a>
+        <span class="scene-chevron" aria-hidden="true">⌄</span>
+      </summary>
+      <div class="char-play-body">
+        ${group.items.map(it => `
+          <div class="char-line" style="--char-color: ${c.color}">
+            <span class="scene-tag">${esc(it.partTitle)} · ${esc(it.sceneTitle)}</span>
+            ${esc(it.text)}
+          </div>
+        `).join('')}
+      </div>
+    </details>
   `).join('');
 
   const emptyHtml = lines.length === 0 ? '<div class="empty">Este personagem não tem falas registradas.</div>' : '';
