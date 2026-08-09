@@ -223,14 +223,16 @@ PLAYS.forEach(play => {
   });
 });
 
-// Personagens que aparecem em cada peça
+// Personagens que aparecem em cada peça + contagem de falas por peça
 const charactersByPlay = {};
+const linesCountByPlay = {}; // { playId: { charKey: count } }
 PLAYS.forEach(play => {
-  const set = new Set();
+  const counts = {};
   play.parts.forEach(part => part.scenes.forEach(scene => scene.beats.forEach(beat => {
-    if (beat.type === 'line') set.add(beat.character);
+    if (beat.type === 'line') counts[beat.character] = (counts[beat.character] || 0) + 1;
   })));
-  charactersByPlay[play.id] = Array.from(set);
+  linesCountByPlay[play.id] = counts;
+  charactersByPlay[play.id] = Object.keys(counts);
 });
 
 // ---------------------------------------------------------------- Renderers
@@ -404,8 +406,14 @@ function renderPlay(slug) {
       <ol>${tocHtml}</ol>
     </div>
 
-    <div class="section-title"><h2>Personagens desta peça</h2><small>${charactersByPlay[play.id].length}</small></div>
-    <div class="characters-in-play">${charList}</div>
+    <details class="cast-block" open>
+      <summary class="cast-summary">
+        <h2>Personagens desta peça</h2>
+        <span class="scene-meta">${charactersByPlay[play.id].length}</span>
+        <span class="scene-chevron" aria-hidden="true">⌄</span>
+      </summary>
+      <div class="characters-in-play">${charList}</div>
+    </details>
 
     ${partsHtml}
   `;

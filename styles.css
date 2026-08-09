@@ -426,11 +426,38 @@ main {
 }
 .play-toc li { margin: 4px 0; font-size: 14px; }
 
-.characters-in-play {
+.cast-block {
+  margin: 40px 0 28px;
+}
+.cast-summary {
+  list-style: none;
+  cursor: pointer;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 18px 0 28px;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  user-select: none;
+  transition: background 0.15s;
+}
+.cast-summary:hover {
+  background: color-mix(in oklab, var(--accent) 6%, transparent);
+}
+.cast-summary::-webkit-details-marker { display: none; }
+.cast-summary h2 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: -0.3px;
+  flex: 1;
+  min-width: 0;
+}
+.characters-in-play {
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: start;
+  column-gap: 12px;
+  row-gap: 8px;
+  margin: 14px 0 0;
 }
 .characters-in-play .mini-chip {
   display: inline-flex;
@@ -449,6 +476,7 @@ main {
   width: 16px; height: 16px;
   border-radius: 50%;
   background: var(--char-color, var(--accent));
+  flex-shrink: 0;
 }
 
 .part {
@@ -508,7 +536,8 @@ main {
   transform: rotate(180deg);
 }
 .scene[open] > .scene-summary .scene-chevron,
-.char-play-block[open] > .char-play-summary .scene-chevron {
+.char-play-block[open] > .char-play-summary .scene-chevron,
+.cast-block[open] > .cast-summary .scene-chevron {
   transform: rotate(0deg);
 }
 .scene-body {
@@ -761,11 +790,13 @@ main {
 /* ------------------------------------------------------------------- Breadcrumb */
 .crumbs {
   display: flex;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 4px 6px;
   align-items: center;
   font-size: 13px;
   color: var(--text-muted);
   margin-bottom: 12px;
+  line-height: 1.4;
 }
 .crumbs a { color: var(--text-muted); }
 .crumbs a:hover { color: var(--accent); }
