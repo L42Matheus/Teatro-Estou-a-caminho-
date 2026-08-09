@@ -52,6 +52,15 @@ const ACTORS = {
 
   samaritano:        'Netinho',
   mensageiro:        'Netinho',
+
+  // --- Júri do Bruno ---
+  juiz:              'Gabriel',
+  bruno:             'Neto',
+  mirabel:           'Tainara',
+  'acusacao-1':      'Adolescentes',
+  'acusacao-2':      'Adolescentes',
+  'defesa-1':        'Adolescentes',
+  'defesa-2':        'Adolescentes',
 };
 
 // Retorna o nome do ator/atriz de um personagem (ou string vazia se não houver)
