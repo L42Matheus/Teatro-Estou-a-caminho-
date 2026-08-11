@@ -23,7 +23,7 @@ const ACTORS = {
   avelino:           'Douglas',
   angelo:            'João',
   jesus:             'João',
-  juju:              'Lara',
+  juju:              '',
   salete:            'Greice',
 
   // --- Atores com mais de um personagem ---
