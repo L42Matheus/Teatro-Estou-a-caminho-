@@ -14,15 +14,15 @@ const ACTORS = {
   paty:              'Morgana',
   britney:           'Milena',
   kelly:             'Mariana',
-  joao:              'Kaio',
+  joao:              'João',
   eugenio:           'Anderson',
   emanuel:           'Mateus',
   remela:            'Vinícius',
 
   // --- Coordenadores / familiares ---
   avelino:           'Douglas',
-  angelo:            'João',
-  jesus:             'João',
+  angelo:            'Gabriel',
+  jesus:             'Gabriel',
   juju:              '',
   salete:            'Greice',
 
