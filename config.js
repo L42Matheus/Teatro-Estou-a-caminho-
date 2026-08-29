@@ -10,7 +10,7 @@ const ACTORS = {
   // --- Adolescentes (aparecem nas 3 peças) ---
   camila:            'Tainara',
   nina:              'Duda',
-  lorena:            'Mirelly',
+  lorena:            'Beatriz',
   paty:              'Morgana',
   britney:           'Milena',
   kelly:             'Mariana',
