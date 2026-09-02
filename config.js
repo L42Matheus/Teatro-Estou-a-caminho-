@@ -39,8 +39,8 @@ const ACTORS = {
   julio:             'Sandro',
   'doutor-da-lei':   'Ewerton',
 
-  'ladrao-1':        'Vitor',
-  lazaro:            'Vitor',
+  'ladrao-1':        'Cadu',
+  lazaro:            'Cadu',
 
   'ladrao-2':        'Edvan',
   'joao-discipulo':  'Edvan',
@@ -48,8 +48,8 @@ const ACTORS = {
   sacerdote:         'Jonas',
   tome:              'Jonas',
 
-  homem:             'Gabriel',
-  pedro:             'Gabriel',
+  homem:             'Victor Barbosa',
+  pedro:             'Victor Barbosa',
 
   samaritano:        'Netinho',
   mensageiro:        'Netinho',
