@@ -20,8 +20,8 @@ const ACTORS = {
   remela:            'Vinícius',
 
   // --- Coordenadores / familiares ---
-  avelino:           'Douglas',
-  angelo:            'Sandro',
+  avelino:           'Vitor Brasil',
+  angelo:            'Netinho',
   jesus:             'Gabriel',
   juju:              'Ana Carolina',
   salete:            'Greice',
@@ -36,7 +36,7 @@ const ACTORS = {
   izabel:            'Zozó',
   'dona-estalagem':  'Zozó',
 
-  julio:             'Ewerton',
+  julio:             'Sandro',
   'doutor-da-lei':   'Ewerton',
 
   'ladrao-1':        'Vitor',
