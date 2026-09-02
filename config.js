@@ -31,7 +31,7 @@ const ACTORS = {
   marta:             'Sandra',
 
   nice:              'Mariana',
-  maria:             'Mariana',
+  maria:             'Carol',
 
   izabel:            'Zozó',
   'dona-estalagem':  'Zozó',
