@@ -37,7 +37,7 @@ const ACTORS = {
   'dona-estalagem':  'Zozó',
 
   julio:             'Sandro',
-  'doutor-da-lei':   'Ewerton',
+  'doutor-da-lei':   'Sandro',
 
   'ladrao-1':        'Cadu',
   lazaro:            'Cadu',
