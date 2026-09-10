@@ -20,18 +20,18 @@ const ACTORS = {
   remela:            'Vinícius',
 
   // --- Coordenadores / familiares ---
-  avelino:           'Vitor Brasil',
-  angelo:            'Netinho',
+  avelino:           'Vitor',
+  angelo:            'Painho Matheus',
   jesus:             'Gabriel',
   juju:              'Ana Carolina',
   salete:            'Greice',
 
   // --- Atores com mais de um personagem ---
-  marluce:           'Sandra',
-  marta:             'Sandra',
+  marluce:           'Valeska',
+  marta:             'Raissa',
 
   nice:              'Mariana',
-  maria:             'Carol',
+  maria:             'Maria',
 
   izabel:            'Zozó',
   'dona-estalagem':  'Zozó',
@@ -45,14 +45,16 @@ const ACTORS = {
   'ladrao-2':        'Edvan',
   'joao-discipulo':  'Edvan',
 
-  sacerdote:         'Jonas',
-  tome:              'Jonas',
+  sacerdote:         'Painho Matheus',
+  tome:              'Ayrton',
 
-  homem:             'Victor Barbosa',
-  pedro:             'Victor Barbosa',
+  homem:             'Victor',
+  pedro:             'Victor',
 
   samaritano:        'Netinho',
   mensageiro:        'Netinho',
+
+  levita:            'Lucas',
 
   // --- Júri do Bruno ---
   juiz:              'Gabriel',
