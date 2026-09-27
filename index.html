@@ -35,8 +35,17 @@
     </div>
   </footer>
 
-  <script src="config.js"></script>
-  <script src="data.js"></script>
-  <script src="app.js"></script>
+  <script>
+    // Cache-buster: força o navegador a buscar sempre a versão mais nova
+    // desses arquivos. Assim, quando o elenco (config.js) ou o roteiro
+    // (data.js) mudam, a atualização aparece na hora — sem precisar limpar
+    // o cache do celular.
+    (function () {
+      var v = Date.now();
+      ['config.js', 'data.js', 'app.js'].forEach(function (src) {
+        document.write('<script src="' + src + '?v=' + v + '"><\/script>');
+      });
+    })();
+  </script>
 </body>
 </html>

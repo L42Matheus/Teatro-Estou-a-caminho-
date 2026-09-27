@@ -45,7 +45,7 @@ const ACTORS = {
   'ladrao-2':        'Edvan',
   'joao-discipulo':  'Edvan',
 
-  samaritano:        'Netinho',
+  samaritano:        'Pedro',
   tome:              'Ayrton',
   levita:            'Lucas',
 
