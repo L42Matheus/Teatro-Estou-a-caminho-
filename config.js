@@ -20,38 +20,39 @@ const ACTORS = {
   remela:            'Vinícius',
 
   // --- Coordenadores / familiares ---
-  avelino:           'Douglas',
-  angelo:            'Sandro',
+  avelino:           'Vitor',
+  angelo:            'Victor',
   jesus:             'Gabriel',
   juju:              'Ana Carolina',
   salete:            'Greice',
 
   // --- Atores com mais de um personagem ---
-  marluce:           'Sandra',
-  marta:             'Sandra',
+  marluce:           'Valeska',
+  marta:             'Raissa',
+  maria:             'Hellen',
 
   nice:              'Mariana',
-  maria:             'Mariana',
 
   izabel:            'Zozó',
   'dona-estalagem':  'Zozó',
 
-  julio:             'Ewerton',
-  'doutor-da-lei':   'Ewerton',
+  julio:             'Sandro',
+  'doutor-da-lei':   'Sandro',
 
-  'ladrao-1':        'Vitor',
-  lazaro:            'Vitor',
+  sacerdote:         'Cadu',
+  lazaro:            'Cadu',
 
   'ladrao-2':        'Edvan',
   'joao-discipulo':  'Edvan',
 
-  sacerdote:         'Jonas',
-  tome:              'Jonas',
-
-  homem:             'Gabriel',
-  pedro:             'Gabriel',
-
   samaritano:        'Netinho',
+  tome:              'Ayrton',
+  levita:            'Lucas',
+
+  homem:             'Victor',
+  pedro:             'Victor',
+
+  'ladrao-1':        'Netinho',
   mensageiro:        'Netinho',
 
   // --- Júri do Bruno ---
