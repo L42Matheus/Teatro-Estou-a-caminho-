@@ -380,9 +380,10 @@ const PLAYS = [
             setting: 'A cena se passa numa sala preparada para uma reunião, tem altar, as cadeiras em círculo e Kelly está sentada fazendo uma oração. Avelino entra e começa a reunião.',
             beats: [
               l('avelino', 'Bom dia, pessoal! Hoje nós vamos começar uma nova caminhada, a caminhada EAC.'),
-              s('Avelino faz uma breve reflexão sobre as dificuldades da caminhada, os preconceitos e a importância de todos no grupo.'),
+              l('avelino', 'Sabemos que nem sempre será fácil. Vamos enfrentar dificuldades, preconceitos e momentos de insegurança. Mas ninguém precisa passar por isso sozinho.'),
+              l('avelino', 'Aqui, cada pessoa tem sua importância. Por isso, vamos caminhar juntos, com respeito, fé e disposição para ajudar uns aos outros. Que essa caminhada transforme a nossa vida e a maneira como enxergamos o próximo.'),
               l('kelly', 'E para completar o que Avelino disse, eu vou ler aqui uma palavra que Jesus deixou pra nós, deixando claro que todos nós somos importantes independentemente de como somos.'),
-              s('Kelly lê I Co 12, 14-23.'),
+              l('kelly', '1 Coríntios 12:14-23. ¹⁴ Portanto, o corpo não é feito de um só membro, mas de muitos. ¹⁵ Se o pé disser: "Porque não sou mão, não pertenço ao corpo", nem por isso deixa de fazer parte do corpo. ¹⁶ Se o ouvido disser: "Porque não sou olho, não pertenço ao corpo", nem por isso deixa de fazer parte do corpo. ¹⁷ Se o corpo todo fosse olho, onde estaria a audição? Se o corpo todo fosse ouvido, onde estaria o olfato? ¹⁸ De fato, Deus dispôs cada um dos membros no corpo segundo a vontade dele. ¹⁹ Se todos fossem um só membro, onde estaria o corpo? ²⁰ Assim, há muitos membros, mas um só corpo. ²¹ O olho não pode dizer à mão: "Não preciso de você". Nem a cabeça pode dizer aos pés: "Não preciso de vocês". ²² Ao contrário, os membros do corpo que parecem mais fracos são indispensáveis, ²³ e os membros do corpo que parecem menos dignos de honra são os que cercamos de maior honra. E os membros menos decentes, nós os tratamos com mais decência.'),
               l('kelly', 'Alguém quer comentar alguma coisa?'),
               l('lorena', 'Eu gostaria de falar só um tiquinho, eu achei tão legal quando cheguei aqui e vi tanta gente diferente, isso quer dizer que não precisamos ser todos iguais pra seguir a Jesus.'),
               l('emanuel', 'Owww, Teddy e eu vamos nos emocionar, porque aqui a gente se sentiu tão acolhido, num foi, Teddy?'),
